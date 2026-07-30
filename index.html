@@ -26,6 +26,8 @@
     padding:3px 8px;border-radius:999px;text-transform:uppercase}
   .stav.live{background:#dcfce7;color:#15803d}
   .stav.soon{background:#eef1f5;color:#6b7a90}
+  .sec{font-size:13px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#9fb4d4;margin:26px 0 12px;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:6px}
+  .sec:first-child{margin-top:0}
   footer{margin-top:34px;color:#8ea4c2;font-size:12px}
   footer b{color:#c3d4ec}
 </style>
@@ -36,19 +38,29 @@
     <h1>Aplikace M - SILNICE OZ JIH</h1>
   </header>
   <p class="sub">Rozcestník aplikací přípravy. Klikni na dlaždici. Každá aplikace má vlastní přihlášení.</p>
-  <div class="grid" id="grid"></div>
+  <div id="root"></div>
   <footer>Aplikace se plní automaticky z mailů (sběrná schránka v BCC).</footer>
 </div>
 <script>
 /* Uprav si URL a stav u jednotlivých appek. status: 'live' = běží, 'soon' = připravujeme. */
-var APPS=[
+var NASTROJE=[
   {ico:'📄', name:'RDS / DSPS',           desc:'Předávání dokumentace — kde se každé SO nachází a jak dlouho.', url:'https://pripravar.github.io/RDS-DSPS/', status:'live'},
   {ico:'📝', name:'ZBV',                  desc:'Změny během výstavby po stavbách, plněné z mailů.', url:'https://pripravar.github.io/ZBV/', status:'live'},
   {ico:'🛒', name:'Poptávky a objednávky', desc:'Přehled poptávek a objednávek subdodávek po stavbách.', url:'https://pripravar.github.io/Poptavky/', status:'live'},
   {ico:'🧾', name:'Odbytová fakturace',    desc:'Fakturace odbytu.', url:'https://odbytova-fakturace.firebaseapp.com', status:'live'},
   {ico:'🚜', name:'Výkaz strojů a aut',    desc:'Evidence nasazení strojů a vozidel.', url:'', status:'soon'}
 ];
-document.getElementById('grid').innerHTML=APPS.map(function(a){
+/* Mapové aplikace staveb — výkresy (PDF) po staničení v mapě + fotky ze stavby. */
+var STAVBY=[
+  {ico:'🗺️', name:'I/16 Martinovice',            desc:'Mapa stavby — výkresy po staničení a fotky ze stavby.', url:'https://pripravar.github.io/Martinovice/', status:'live'},
+  {ico:'🗺️', name:'Sulice – Želivec',           desc:'Mapa stavby — výkresy po staničení a fotky ze stavby.', url:'https://pripravar.github.io/Sulice---Zelivec/', status:'live'},
+  {ico:'🗺️', name:'I/3 Votice – Oldřichovec',   desc:'Mapa stavby — výkresy po staničení a fotky ze stavby.', url:'https://pripravar.github.io/I-3-Votice---Oldrichovec/', status:'live'},
+  {ico:'🗺️', name:'D11 – most Jaroměř–Trutnov', desc:'Mapa stavby — výkresy po staničení a fotky ze stavby.', url:'https://pripravar.github.io/D11-1108-Jaromer-Trutnov/', status:'live'},
+  {ico:'🗺️', name:'Vacíkov – Zliv',             desc:'Mapa stavby — výkresy po staničení a fotky ze stavby.', url:'https://pripravar.github.io/Vacikov-Zliv/', status:'live'},
+  {ico:'📍', name:'Martinovice – pozemky',       desc:'Pozemky a zábory na mapě stavby.', url:'https://pripravar.github.io/Martinovice-pozemky/', status:'live'},
+  {ico:'📍', name:'I/16 Martinovice – všechny pozemky', desc:'Všechny pozemky a zábory na mapě stavby.', url:'https://pripravar.github.io/I-16-Martinovice-vsechny-pozemky/', status:'live'}
+];
+function tile(a){
   var live=a.status==='live'&&a.url;
   return '<a class="tile '+(live?'':'soon')+'" href="'+(live?a.url:'#')+'"'+(live?' ':' aria-disabled="true"')+'>'+
     '<span class="stav '+(live?'live':'soon')+'">'+(live?'živé':'připravujeme')+'</span>'+
@@ -56,7 +68,11 @@ document.getElementById('grid').innerHTML=APPS.map(function(a){
     '<span class="tname">'+a.name+'</span>'+
     '<span class="tdesc">'+a.desc+'</span>'+
   '</a>';
-}).join('');
+}
+function section(title,apps){return '<div class="sec">'+title+'</div><div class="grid">'+apps.map(tile).join('')+'</div>';}
+document.getElementById('root').innerHTML=
+  section('Nástroje',NASTROJE)+
+  section('Stavby — mapa, výkresy, fotky',STAVBY);
 </script>
 </body>
 </html>
