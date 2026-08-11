@@ -13,6 +13,7 @@
     {"ico": "🗺️", "name": "I/3 Votice – Oldřichovec", "desc": "Mapa stavby — výkresy po staničení a fotky ze stavby.", "url": "https://pripravar.github.io/I-3-Votice---Oldrichovec/", "status": "live"},
     {"ico": "🗺️", "name": "D11 – most Jaroměř–Trutnov", "desc": "Mapa stavby — výkresy po staničení a fotky ze stavby.", "url": "https://pripravar.github.io/D11-1108-Jaromer-Trutnov/", "status": "live"},
     {"ico": "🗺️", "name": "Vacíkov – Zliv", "desc": "Mapa stavby — výkresy po staničení a fotky ze stavby.", "url": "https://pripravar.github.io/Vacikov-Zliv/", "status": "live"},
+    {"ico": "🗺️", "name": "D10 LS Kosmonosy – Bezděčín", "desc": "Mapa stavby — výkresy po staničení a fotky ze stavby.", "url": "https://pripravar.github.io/D10-Kosmonosy-Bezdecin/", "status": "live"},
     {"ico": "📍", "name": "Martinovice – pozemky", "desc": "Pozemky a zábory na mapě stavby.", "url": "https://pripravar.github.io/Martinovice-pozemky/", "status": "live"},
     {"ico": "📍", "name": "I/16 Martinovice – všechny pozemky", "desc": "Všechny pozemky a zábory na mapě stavby.", "url": "https://pripravar.github.io/I-16-Martinovice-vsechny-pozemky/", "status": "live"}
   ]
