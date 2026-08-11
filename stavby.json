@@ -1,0 +1,19 @@
+{
+  "_comment": "Jediný zdroj pravdy pro rozcestník i přepínač v appkách. Novou stavbu přidej sem a projeví se všude. status: 'live' = běží, 'soon' = připravujeme.",
+  "nastroje": [
+    {"ico": "📄", "name": "RDS / DSPS", "desc": "Předávání dokumentace — kde se každé SO nachází a jak dlouho.", "url": "https://pripravar.github.io/RDS-DSPS/", "status": "live"},
+    {"ico": "📝", "name": "ZBV", "desc": "Změny během výstavby po stavbách, plněné z mailů.", "url": "https://pripravar.github.io/ZBV/", "status": "live"},
+    {"ico": "🛒", "name": "Poptávky a objednávky", "desc": "Přehled poptávek a objednávek subdodávek po stavbách.", "url": "https://pripravar.github.io/Poptavky/", "status": "live"},
+    {"ico": "🧾", "name": "Odbytová fakturace", "desc": "Fakturace odbytu.", "url": "https://odbytova-fakturace.firebaseapp.com", "status": "live"},
+    {"ico": "🚜", "name": "Výkaz strojů a aut", "desc": "Evidence nasazení strojů a vozidel.", "url": "", "status": "soon"}
+  ],
+  "stavby": [
+    {"ico": "🗺️", "name": "I/16 Martinovice", "desc": "Mapa stavby — výkresy po staničení a fotky ze stavby.", "url": "https://pripravar.github.io/Martinovice/", "status": "live"},
+    {"ico": "🗺️", "name": "Sulice – Želivec", "desc": "Mapa stavby — výkresy po staničení a fotky ze stavby.", "url": "https://pripravar.github.io/Sulice---Zelivec/", "status": "live"},
+    {"ico": "🗺️", "name": "I/3 Votice – Oldřichovec", "desc": "Mapa stavby — výkresy po staničení a fotky ze stavby.", "url": "https://pripravar.github.io/I-3-Votice---Oldrichovec/", "status": "live"},
+    {"ico": "🗺️", "name": "D11 – most Jaroměř–Trutnov", "desc": "Mapa stavby — výkresy po staničení a fotky ze stavby.", "url": "https://pripravar.github.io/D11-1108-Jaromer-Trutnov/", "status": "live"},
+    {"ico": "🗺️", "name": "Vacíkov – Zliv", "desc": "Mapa stavby — výkresy po staničení a fotky ze stavby.", "url": "https://pripravar.github.io/Vacikov-Zliv/", "status": "live"},
+    {"ico": "📍", "name": "Martinovice – pozemky", "desc": "Pozemky a zábory na mapě stavby.", "url": "https://pripravar.github.io/Martinovice-pozemky/", "status": "live"},
+    {"ico": "📍", "name": "I/16 Martinovice – všechny pozemky", "desc": "Všechny pozemky a zábory na mapě stavby.", "url": "https://pripravar.github.io/I-16-Martinovice-vsechny-pozemky/", "status": "live"}
+  ]
+}
