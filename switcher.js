@@ -1,14 +1,22 @@
 /* ============================================================================
- * Přepínač staveb M-SILNICE  (verze 1.1 — posouvatelný, průhledný)
+ * Přepínač staveb M-SILNICE  (verze 1.2 — opt-in podle role + výjimka)
  * Vlož do libovolné appky jediným řádkem před </body>:
  *   <script src="https://pripravar.github.io/OZ-JIH/switcher.js" defer></script>
+ *
+ * DŮLEŽITÉ: přepínač se sám NEZOBRAZÍ. Až když ho appka po přihlášení pustí:
+ *   window.MSWInit({ role: 'admin', override: null });
+ *     role     : 'admin' | 'sub' | 'investor' | 'tds' | ...  (role uživatele v appce)
+ *     override : true  = vždy ukázat (ruční výjimka v právech)
+ *                false = vždy skrýt  (ruční výjimka v právech)
+ *                null/undefined = rozhodne role (SUB/investor/TDS neuvidí, ostatní ano)
+ *   window.MSWHide();   // schová (např. při odhlášení)
+ * Lze volat opakovaně (po změně uživatele) — přepínač se přepočítá.
  *
  * Seznam staveb bere z jednoho zdroje: https://pripravar.github.io/OZ-JIH/stavby.json
  * Novou stavbu přidáš JEN tam a přepínač se aktualizuje ve všech appkách.
  *
- * Chování:
- *  - tlačítko lze TÁHNOUT (jako beruška), pozice se uloží (localStorage)
- *    a protože appky jsou na stejné doméně, drží se ve všech stejně
+ * Chování tlačítka:
+ *  - lze TÁHNOUT (jako beruška), pozice se uloží (localStorage) a drží se ve všech appkách
  *  - lehce průhledné, při dotyku/najetí plné
  *  - výchozí pozice: levý okraj, spodní polovina
  *  - krátký ťuk (bez posunu) = otevře menu
@@ -21,6 +29,15 @@
   var HUB_URL   = 'https://pripravar.github.io/OZ-JIH/';
   var STORE_KEY = 'msw_pos_v1';               // uložená pozice tlačítka
   var MARGIN    = 8;                          // odstup od okrajů
+  var BLOKOVANE_ROLE = ['sub', 'investor', 'tds'];  // tyto role přepínač NEvidí (bez výjimky)
+
+  /* Rozhodnutí, zda uživatel smí vidět přepínač. */
+  function smiVidet(role, override) {
+    if (override === true)  return true;      // ruční výjimka: povolit
+    if (override === false) return false;     // ruční výjimka: zakázat
+    var r = String(role || '').toLowerCase();
+    return BLOKOVANE_ROLE.indexOf(r) === -1;  // jinak podle role
+  }
 
   function norm(u) {
     try {
@@ -121,11 +138,25 @@
     btn.addEventListener('pointercancel', end);
   }
 
+  var MOD = { built: false, booting: false, btn: null, ov: null, wantShow: false };
+
+  function showBtn() {
+    if (!MOD.btn) return;
+    MOD.btn.style.display = '';
+    var r = MOD.btn.getBoundingClientRect();
+    if (r.width) applyPos(MOD.btn, r.left, r.top);
+  }
+  function hideBtn() {
+    if (MOD.btn) MOD.btn.style.display = 'none';
+    if (MOD.ov) MOD.ov.classList.remove('open');
+  }
+
   function build(data) {
     var style = el('style'); style.textContent = css; document.head.appendChild(style);
 
     var btn = el('div', { id: 'msw-btn', role: 'button', 'aria-label': 'Přepnout stavbu (lze táhnout)' },
       '🗺️ <span>Stavby</span> <span class="msw-ca">▾</span>');
+    btn.style.display = 'none';                // skryté, dokud appka nepovolí přes MSWInit()
     document.body.appendChild(btn);
 
     // pozice: uložená, jinak výchozí = levý okraj, spodní polovina
@@ -133,6 +164,7 @@
     var pos = saved || { left: MARGIN, top: Math.round(window.innerHeight * 0.70) };
     applyPos(btn, pos.left, pos.top);
     window.addEventListener('resize', function () {
+      if (btn.style.display === 'none') return;
       var r = btn.getBoundingClientRect(); applyPos(btn, r.left, r.top);
     });
 
@@ -159,15 +191,35 @@
     ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
     panel.querySelector('.msw-x').addEventListener('click', close);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+    MOD.btn = btn; MOD.ov = ov; MOD.built = true; MOD.booting = false;
+    if (MOD.wantShow) showBtn(); else hideBtn();
   }
 
   function boot() {
+    if (MOD.built || MOD.booting) return;
+    MOD.booting = true;
     fetch(JSON_URL, { cache: 'no-cache' })
       .then(function (r) { return r.json(); })
       .then(build)
-      .catch(function () { /* offline / bez sítě: přepínač se prostě nezobrazí */ });
+      .catch(function () { MOD.booting = false; /* offline: přepínač se prostě nezobrazí */ });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
+  /* ---- Veřejné API pro appky ------------------------------------------- *
+   * Appka volá po přihlášení, jakmile zná roli/práva uživatele:
+   *   window.MSWInit({ role: 'sub', override: null });
+   * Vrací true/false = zda uživatel přepínač uvidí.                          */
+  window.MSWInit = function (opts) {
+    opts = opts || {};
+    var allow = smiVidet(opts.role, opts.override);
+    MOD.wantShow = allow;
+    if (allow) { MOD.built ? showBtn() : boot(); }
+    else if (MOD.built) { hideBtn(); }
+    return allow;
+  };
+  window.MSWHide = function () { MOD.wantShow = false; if (MOD.built) hideBtn(); };
+
+  /* Pokud appka rozhodla dřív, než se tenhle skript stihl načíst, nastaví
+     window.MSWState = { role, override } a my ho tu převezmeme. */
+  if (window.MSWState) { try { window.MSWInit(window.MSWState); } catch (e) {} }
 })();
