@@ -57,6 +57,8 @@
     'transition:opacity .15s ease}' +
     '#msw-btn:hover{opacity:1}' +
     '#msw-btn.msw-drag{opacity:1;cursor:grabbing;box-shadow:0 8px 22px rgba(0,0,0,.45)}' +
+    '#msw-btn.msw-collapsed{opacity:.42;padding:7px 5px;gap:0;box-shadow:none}' +
+    '#msw-btn.msw-collapsed span{display:none}' +
     '#msw-btn .msw-ca{opacity:.7;font-size:11px}' +
     '#msw-ov{position:fixed;inset:0;z-index:2147483001;background:rgba(0,0,0,.45);display:none;' +
     'align-items:flex-start;justify-content:center;padding:14vh 14px 14px}' +
@@ -98,10 +100,30 @@
   }
 
   function loadPos() {
-    try { var p = JSON.parse(localStorage.getItem(STORE_KEY)); if (p && typeof p.left === 'number') return p; } catch (e) {}
+    try { var p = JSON.parse(localStorage.getItem(STORE_KEY)); if (p && (typeof p.left === 'number' || p.collapsed)) return p; } catch (e) {}
     return null;
   }
   function savePos(p) { try { localStorage.setItem(STORE_KEY, JSON.stringify(p)); } catch (e) {} }
+
+  /* Zasunutí do kraje: tlačítko se schová do malého jazýčku u okraje (jen 🗺️), ať nepřekáží. */
+  function applyCollapsed(btn, side, top) {
+    btn.classList.add('msw-collapsed');
+    var h = btn.offsetHeight || 32;
+    top = clamp((top == null ? Math.round(window.innerHeight * 0.70) : top), MARGIN, window.innerHeight - h - MARGIN);
+    btn.style.top = top + 'px';
+    if (side === 'right') { btn.style.left = 'auto'; btn.style.right = '0'; }
+    else { btn.style.right = 'auto'; btn.style.left = '0'; }
+  }
+  function expandBtn(btn) {
+    btn.classList.remove('msw-collapsed');
+    var p = loadPos(); var side = (p && p.side) || 'left';
+    var top = (p && typeof p.top === 'number') ? p.top : Math.round(window.innerHeight * 0.70);
+    var w = btn.offsetWidth || 120;
+    var left = side === 'right' ? (window.innerWidth - w - MARGIN) : MARGIN;
+    btn.style.right = 'auto';
+    var np = applyPos(btn, left, top);
+    savePos({ left: np.left, top: np.top });
+  }
 
   function setupDrag(btn, onTap) {
     var startX, startY, baseL, baseT, moved, dragging, pid;
@@ -118,7 +140,7 @@
     btn.addEventListener('pointermove', function (e) {
       if (!dragging) return;
       var dx = e.clientX - startX, dy = e.clientY - startY;
-      if (!moved && (Math.abs(dx) > THRESH || Math.abs(dy) > THRESH)) { moved = true; btn.classList.add('msw-drag'); }
+      if (!moved && (Math.abs(dx) > THRESH || Math.abs(dy) > THRESH)) { moved = true; btn.classList.add('msw-drag'); if (btn.classList.contains('msw-collapsed')) { btn.classList.remove('msw-collapsed'); btn.style.right = 'auto'; } }
       if (moved) applyPos(btn, baseL + dx, baseT + dy);
     });
 
@@ -129,9 +151,12 @@
       try { btn.releasePointerCapture(pid); } catch (_) {}
       if (moved) {
         var r = btn.getBoundingClientRect();
-        savePos({ left: r.left, top: r.top });
+        if (r.left <= MARGIN + 2) { applyCollapsed(btn, 'left', r.top); savePos({ collapsed: true, side: 'left', top: r.top }); }
+        else if (r.right >= window.innerWidth - MARGIN - 2) { applyCollapsed(btn, 'right', r.top); savePos({ collapsed: true, side: 'right', top: r.top }); }
+        else { savePos({ left: r.left, top: r.top }); }
       } else {
-        onTap();   // krátký ťuk = otevřít menu
+        if (btn.classList.contains('msw-collapsed')) { expandBtn(btn); }  // ťuk na zasunuté = vysunout
+        else onTap();   // krátký ťuk = otevřít menu
       }
     }
     btn.addEventListener('pointerup', end);
@@ -143,6 +168,8 @@
   function showBtn() {
     if (!MOD.btn) return;
     MOD.btn.style.display = '';
+    var sp = loadPos();
+    if (sp && sp.collapsed) { applyCollapsed(MOD.btn, sp.side || 'left', sp.top); return; }
     var r = MOD.btn.getBoundingClientRect();
     if (r.width) applyPos(MOD.btn, r.left, r.top);
   }
@@ -161,10 +188,11 @@
 
     // pozice: uložená, jinak výchozí = levý okraj, spodní polovina
     var saved = loadPos();
-    var pos = saved || { left: MARGIN, top: Math.round(window.innerHeight * 0.70) };
-    applyPos(btn, pos.left, pos.top);
+    if (saved && saved.collapsed) { applyCollapsed(btn, saved.side || 'left', saved.top); }
+    else { var pos = saved || { left: MARGIN, top: Math.round(window.innerHeight * 0.70) }; applyPos(btn, pos.left, pos.top); }
     window.addEventListener('resize', function () {
       if (btn.style.display === 'none') return;
+      if (btn.classList.contains('msw-collapsed')) { var sp = loadPos(); applyCollapsed(btn, (sp && sp.side) || 'left', sp && sp.top); return; }
       var r = btn.getBoundingClientRect(); applyPos(btn, r.left, r.top);
     });
 
