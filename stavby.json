@@ -2,6 +2,7 @@
   "_comment": "Jediný zdroj pravdy pro rozcestník i přepínač v appkách. Novou stavbu přidej sem a projeví se všude. status: 'live' = běží, 'soon' = připravujeme.",
   "nastroje": [
     {"ico": "📄", "name": "RDS / DSPS", "desc": "Předávání dokumentace — kde se každé SO nachází a jak dlouho.", "url": "https://pripravar.github.io/RDS-DSPS/", "status": "live"},
+    {"ico": "✅", "name": "Prověření SOD / ZBV", "desc": "Elektronické schválení prověření a listu stavby – oznámení na telefon, razítko místo podpisu.", "url": "https://msilnice-provereni.web.app", "status": "live"},
     {"ico": "📝", "name": "ZBV", "desc": "Změny během výstavby po stavbách, plněné z mailů.", "url": "https://pripravar.github.io/ZBV/", "status": "live"},
     {"ico": "🛒", "name": "Poptávky a objednávky", "desc": "Přehled poptávek a objednávek subdodávek po stavbách.", "url": "https://pripravar.github.io/Poptavky/", "status": "live"},
     {"ico": "🧾", "name": "Odbytová fakturace", "desc": "Fakturace odbytu.", "url": "https://odbytova-fakturace.firebaseapp.com", "status": "live"},
